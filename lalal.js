@@ -1,5 +1,6 @@
 const icon = require('../libs/indenticon/indenticon');
 const contentTypeSvg = 'image/svg+xml';
+let a;
 
 module.exports = async (req, res) => {
     if (req.params.id) {
