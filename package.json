@@ -5,9 +5,11 @@
   "scripts": {
     "lint": "eslint .",
     "test": "npm run lint",
+
     "build": "next build",
     "start": "NODE_ENV=production node ./server/index.js",
-    "deploy": "now --token $NOW_TOKEN --public",
+    
+    "deploy": "now --token $NOW_TOKEN -e GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID -e GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET -e EXPRESS_SESSION_SECRET-$EXPRESS_SESSION_SECRET -e BASE_URL=$BASE_URL --public",
     "alias": "now alias --token=$NOW_TOKEN"
   },
   "dependencies": {
