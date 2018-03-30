@@ -1,11 +1,12 @@
 language: node_js
 node_js:
-  - "8"
-
+- '8'
 before_deploy: npm install -g now
-
 deploy:
   provider: script
   script: bash ./deploy.sh
   on:
     branch: master
+env:
+  global:
+    secure: AH+0Uh2o5Qhqz3fRLgFW78XOdlC7qRaiYQe2LtdS3wpcSTgyrfp9SLqis8DReogq8RJWsVuSfujoREStpy/TrsXwl2TT1v1HXcOrrh+z+cqCSSfGKxpSUAORe1uyDJWiJVtHARjtCYWEcNQjDz/o8bK94chJ52FO0nCy5+pwfXGtSiUHMiDmdj3vjFX5PRqbEMs5dGQob8VVgHZyke2h2U/P6RjwiIRc/cDp4qgJuipEjZJUhh4bj7JXnNFU1PbWigoQwcH0Ic0n64Il7dRuQjuVwiDj7+44GNaWDkegc3ItvOnY19eeU9/d7NbeLehRPLabOI8EhxZOFNsuMJnDyrTkTZguxgcayPZoMxwi7kf1etOequFEc1mssljEnlTQNE0bITN/3BTieA9hg26cpErBDly9M7OSMOxdY12Tf1v85RGZNVzlUZCqryWwcYjZIk6n2abO9UiW6g8YiQ5m8UG6v59Jc+Yt9R4vfPHFvWqq2zRNExTykuk9QEeOataKwZTE9QrAEvXc/IVn0J7hc5/2ved1X9efQDwL+lIxOoEsh1UoisHVnord6T5eSdbURPqCKUwNxcqOKYGYpeAGszETZIPqT8GRrgkafjSOKKYC7rtFikn14Qf8US96vQo6hn/MN3s7d5GgN7GR0YcrnapjAWubv6YlYaxKY9GpalI=
