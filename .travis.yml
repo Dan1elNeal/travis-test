@@ -3,5 +3,4 @@ node_js:
   - "8"
 
 deploy:
-  script: npm run deploy 
-  after_script: npm run alias
+  script: "npm run deploy && npm run alias"
