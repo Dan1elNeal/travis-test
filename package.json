@@ -5,10 +5,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "npm run lint",
-    
     "build": "next build",
     "start": "NODE_ENV=production node ./server/index.js",
-
     "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --npm",
     "alias": "now alias --token=$NOW_TOKEN"
   },
@@ -22,6 +20,7 @@
     "js-md5": "^0.7.3",
     "micro": "^9.1.4",
     "next": "^5.0.0",
+    "now": "^10.2.2",
     "passport": "0.4.0",
     "passport-github": "1.1.0",
     "react": "^16.2.0",
