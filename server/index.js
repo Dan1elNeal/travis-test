@@ -1,4 +1,8 @@
-require('dotenv').config({ path: './server/config/.auth' });
+const dev = process.env.NODE_ENV !== 'production';
+
+if (dev) {
+    require('dotenv').config({ path: './server/config/.auth' });
+}
 
 const express = require('express');
 const expressSession = require('express-session');
@@ -10,7 +14,7 @@ const appRouter = require('./routers/app');
 
 const next = require('next');
 
-const app = next({ dev: process.env.NODE_ENV !== 'production' });
+const app = next({ dev });
 
 const server = express();
 

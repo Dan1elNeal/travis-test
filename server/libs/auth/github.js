@@ -7,7 +7,7 @@ const strategy = new GithubStrategy(
     {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: 'http://localhost:3000/auth/return'
+        callbackURL: `${process.env.BASE_URL}/auth/return`
     },
     (accessToken, refreshToken, profile, done) => {
         done(null, profile);
