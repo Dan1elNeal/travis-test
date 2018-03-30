@@ -1,5 +1,3 @@
-require('dotenv').config({ path: './server/config/.auth' });
-
 const express = require('express');
 const expressSession = require('express-session');
 const passport = require('passport');
