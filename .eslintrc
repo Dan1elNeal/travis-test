@@ -1,0 +1,8 @@
+{
+    "extends": "hrundel/node",
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "sourceType": "module",
+      "allowImportExportEverywhere": true
+    }
+}
