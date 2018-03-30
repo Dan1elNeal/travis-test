@@ -6,8 +6,8 @@
     "lint": "eslint .",
     "test": "npm run lint",
     "build": "next build",
-    "start": "NODE_ENV=production node ./server/index.js",
-    "deploy": "now --token $NOW_TOKEN -e NODE_ENV=production -e GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID -e GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET -e EXPRESS_SESSION_SECRET=$EXPRESS_SESSION_SECRET -e BASE_URL=$BASE_URL --public",
+    "start": "node ./server/index.js",
+    "deploy": "now --token $NOW_TOKEN --public",
     "alias": "now alias --token=$NOW_TOKEN"
   },
   "dependencies": {
@@ -15,11 +15,9 @@
     "config": "^1.30.0",
     "cookie-parser": "1.4.3",
     "create-react-app": "^1.5.2",
-    "dotenv": "5.0.1",
     "express": "^4.16.2",
     "express-session": "1.15.6",
     "js-md5": "^0.7.3",
-    "micro": "^9.1.4",
     "next": "^5.0.0",
     "passport": "0.4.0",
     "passport-github": "1.1.0",
@@ -35,6 +33,14 @@
     "webpack": "^4.1.1"
   },
   "now": {
-    "alias": "the-best-messenger"
+    "name": "the-best-messenger",
+    "alias": "the-best-messenger.now.sh",
+    "env": {
+      "NODE_ENV": "production",
+      "GITHUB_CLIENT_ID": "@client-id",
+      "GITHUB_CLIENT_SECRET": "@client-secret",
+      "EXPRESS_SESSION_SECRET": "express-session-secret",
+      "BASE_URL": "@base-url"
+    }
   }
 }
