@@ -3,4 +3,7 @@ node_js:
   - "8"
 
 deploy:
-  script: "npm run deploy && npm run alias"
+  provider: script
+  script: npm run deploy && npm run alias
+  on:
+    branch: master
