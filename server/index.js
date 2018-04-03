@@ -13,6 +13,8 @@ const next = require('next');
 
 const app = next({ dev: process.env.NODE_ENV !== 'production' });
 
+let a = 0;
+
 const server = express();
 
 app.prepare().then(() => {
