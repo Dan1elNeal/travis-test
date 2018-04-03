@@ -7,6 +7,8 @@ const authRouter = require('./routers/auth');
 const apiRouter = require('./routers/api');
 const appRouter = require('./routers/app');
 
+const a = 10;
+
 const next = require('next');
 
 const app = next({ dev: process.env.NODE_ENV !== 'production' });
