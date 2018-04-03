@@ -13,7 +13,7 @@ const next = require('next');
 
 const app = next({ dev: process.env.NODE_ENV !== 'production' });
 
-let a = 0;
+let a = 12;
 
 const server = express();
 
