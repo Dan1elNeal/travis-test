@@ -9,8 +9,8 @@
     "test": "npm run lint",
     "build": "next build",
     "start": "node ./server/index.js",
-    "deploy": "now --token $NOW_TOKEN --public",
-    "alias": "now alias --token=$NOW_TOKEN"
+    "deploy": "now --token $NOW_TOKEN --public --debug",
+    "alias": "now alias --token=$NOW_TOKEN --debug"
   },
   "dependencies": {
     "body-parser": "1.18.2",
