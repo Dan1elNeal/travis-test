@@ -6,9 +6,9 @@ module.exports = {
     expressSessionSecret: 'The coolest messenger',
     baseUrl: 'http://localhost:3000',
     dbConfig: {
-        token: 'type token here',
+        token: 'type hrudn token here',
         dbUrl: 'https://hrudb.herokuapp.com/storage/',
         requestTimeout: 1000,
-        retryCount: 3
+        retryCount: 5
     }
 };

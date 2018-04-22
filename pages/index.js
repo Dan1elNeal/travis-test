@@ -1,76 +1,80 @@
-/* eslint-disable */
 import React, { Component, Fragment } from 'react';
 
-import ContactList from '../components/contacts';
+import Conversations from '../components/conversations';
 import Chat from '../components/chat';
 import Menu from '../components/menu';
+import axios from 'axios';
 
 export default class IndexPage extends Component {
-    static async getInitialProps() {
+    static async getInitialProps({ req }) {
+        const [conversations, contactsList] = await Promise.all([
+            axios.get('http://localhost:3000/api/conversations', req),
+            axios.get('http://localhost:3000/api/contacts', req)
+        ]);
+
         return {
-            'messages': [
-                {
-                    'avatar': 'http://primo.ws/files/Disks/Avatars/Avatar_girl_face.png',
-                    'side': 'self',
-                    'message': 'how\'s it goin',
-                    'time': '04:20'
-                },
-                {
-                    'avatar': 'https://i.imgur.com/DY6gND0.png',
-                    'side': 'other',
-                    'message': 'kys pls',
-                    'time': '08:36'
-                },
-                {
-                    'avatar': 'http://primo.ws/files/Disks/Avatars/Avatar_girl_face.png',
-                    'side': 'self',
-                    'message': 'life is just meaningless',
-                    'time': '20:08'
-                },
-                {
-                    'avatar': 'https://i.imgur.com/I80W1Q0.png',
-                    'side': 'other',
-                    'message': 'what\'s going on??????',
-                    'time': '20:08'
-                },
-                {
-                    'avatar': 'https://i.imgur.com/DY6gND0.png',
-                    'side': 'other',
-                    'message': 'oh hi mark',
-                    'time': '20:09'
-                }
-            ],
-            'contacts': [
-                {
-                    'name': 'Pavel',
-                    'avatar': 'http://primo.ws/files/Disks/Avatars/Avatar_girl_face.png'
-                },
-                {
-                    'name': 'Chris',
-                    'avatar': 'https://i.imgur.com/DY6gND0.png'
-                },
-                {
-                    'name': 'Mark',
-                    'avatar': 'https://i.imgur.com/I80W1Q0.png'
-                },
-                {
-                    'name': 'Sentchonok',
-                    'avatar': 'https://images.vexels.com/media/users/3/145908/preview2/52eabf633ca6414e60a7677b0b917d92-male-avatar-maker.jpg'
-                }
-            ],
-            'menu': {
-                'name': 'Pavel',
-                'avatar': 'https://i.imgur.com/DY6gND0.png',
-                'time': '18:06'
+            messagesInfo: {
+                'currentUser': req.user.username
+            },
+            conversations: conversations.data,
+            contacts: contactsList.data,
+            menu: {
+                'name': req.user.username,
+                'avatar': `/api/avatar/${req.user.username}`,
+                'link': req.user.profileUrl,
+                'registered': req.user._json.created_at
             }
         };
     }
+
+    constructor(props) {
+        super(props);
+        this.state = props;
+    }
+
+    async _onConversationClick(conversation) {
+        this.setState({
+            messagesInfo: {
+                'currentUser': this.state.messagesInfo.currentUser
+            }
+        });
+
+        this.loadConversations(conversation.id);
+    }
+
+    async loadConversations(conversationId) {
+        const currentUser = this.state.messagesInfo.currentUser;
+        let res = await axios.get(`api/messages/${conversationId}`,
+            { withCredentials: true });
+
+        this.setState({
+            messagesInfo: {
+                'conversationId': conversationId,
+                'messages': res.data.map(elem => JSON.parse(elem)),
+                'currentUser': currentUser
+            }
+        });
+    }
+
     render() {
+        const conversations = this.state.conversations;
+        const messagesInfo = this.state.messagesInfo;
+        const currentUser = this.props.messagesInfo.currentUser;
+        const menu = this.state.menu;
+        const contactsList = this.state.contacts;
+
         return (
             <Fragment>
-                <ContactList contacts={this.props.contacts} />
-                <Chat messages={this.props.messages} />
-                <Menu menu={this.props.menu} />
+                <Conversations conversations={conversations}
+                    onConversationClick={this._onConversationClick.bind(this)}
+                    currentUser={currentUser}
+                />
+                {messagesInfo.messages
+                    ? <Chat messagesInfo={messagesInfo}/>
+                    : null
+                }
+                <Menu contacts={contactsList}
+                    menu={menu} />
             </Fragment>
         );
     }
