@@ -1,0 +1,48 @@
+.signin__container
+{
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    text-align: center;
+}
+
+.logo
+{
+    width: 210px;
+    height: 210px;
+    transform: translateY(40px) translateX(2px);
+}
+
+.sign-in
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+
+.sign-in__a,
+.sign-in__a:link,
+.sign-in__a:visited
+{
+    width: 220px;
+    height: 44px;
+    margin: 0 auto;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: 24px;
+    line-height: 40px;
+    padding: 20px 40px;
+    display: block;
+    border: 2px solid #ff7f50;
+    text-align: center;
+    border-radius: 3px;
+    background-color: #fff;
+    color: #000;
+}
+
+.sign-in__a:hover
+{
+    background-color: #f55649;
+    color: #fff;
+}

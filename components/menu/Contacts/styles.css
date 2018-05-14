@@ -1,7 +1,16 @@
-.dropdown__menu
+.contacts
 {
-    position: relative;
-    top: 7px;
-    left: 252px;
-    width: min-content;
+    margin-left: 20px;
+}
+
+.rce-button
+{
+    background: linear-gradient(45deg, #eecfba, #c5dde8);
+    box-shadow: 0 1px 2px #9e9e9e;
+    height: 32px;
+}
+
+.rce-button > span
+{
+    color: #4b0082;
 }

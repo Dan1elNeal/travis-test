@@ -1,22 +1,78 @@
-.chatInput
+.chat-input
 {
-    position: fixed;
-    bottom: 0px;
-    left: 53.6%;
-    width: 40.5%;
-    height: 9%;
-    z-index: 99;
-    background: white;
+    grid-area: chat-input;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
+
+.chat-input__textarea
+{
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    background: #fff;
     outline: none;
-    padding-left: 5px;
-    padding-right: 55px;
     color: #666;
     font-weight: 400;
     resize: none;
-    overflow-y: scroll;
-    border: solid 5px lightsalmon;
+    overflow: hidden;
+
+    border: solid 5px #ffa07a;
+    width: 100%;
+    height: 100%;
+
+    box-shadow: 0 1px 2px #9e9e9e;
+
+    font-size: 20px;
 }
-.hidden
+
+.chat-input__show-picker-button
 {
-display:none;
+    position: absolute;
+    font-size: 45px;
+    cursor: pointer;
+    right: 40px;
+    top: 0;
+}
+
+.chat-input__input-elements
+{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.file-input
+{
+    display: none;
+}
+
+.chat-input__file-label
+{
+    position: absolute;
+    font-size: 24px;
+    cursor: pointer;
+    top: 10px;
+    right: 15px;
+}
+
+.chat-input__emoji-icon,
+.chat-input__file-icon
+{
+    width: 30px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.chat-input__emoji-icon
+{
+    margin-right: 15px;
+}
+
+.chat-input__input-elements > :first-child
+{
+    width: 90% !important;
 }

@@ -1,28 +1,43 @@
-const db = require('../libs/dbHelper');
+const ErrorInfo = require('../models/errorInfo');
+const Contact = require('../models/schemas/contact');
+const User = require('../models/schemas/user');
 
 module.exports.contacts = async (req, res) => {
-    const contacts = await db.getAll(`contacts_${req.user.username}`);
-    res.json(contacts);
+    let contactsInfo;
+    try {
+        contactsInfo = await Contact.findOne({ ownerName: req.user.username });
+    } catch (ex) {
+        console.error(ex);
+    }
+    res.json(contactsInfo ? contactsInfo.contacts : []);
 };
 
 module.exports.add = async (req, res) => {
-    const contact = {
-        username: req.params.username
-    };
-
-    try {
-        await db.get(`users_${contact.username}`);
-    } catch (ex) {
-        return res.status(404).send(`User ${contact.username} not found`);
+    const additionResult = await tryAddContact(req.user.username, req.params.username);
+    if (additionResult.error) {
+        return res.status(additionResult.error.status).json({ error: additionResult.error });
     }
-
-    try {
-        await db.post(`contacts_${req.user.username}`, JSON.stringify(contact));
-    } catch (ex) {
-        console.error(`Can't create contact ${contact}. Exception: ${ex}`);
-
-        return res.sendStatus(500);
-    }
-
-    res.status(201).send(contact);
+    res.status(201).json(additionResult.addedContact);
 };
+
+async function tryAddContact(username, contactName) {
+    if (username === contactName) {
+        return { error: new ErrorInfo(400, 'Нельзя добавить себя в контакты') };
+    }
+
+    const user = await User.ensureExists(contactName);
+    if (!user) {
+        return { error: new ErrorInfo(404, 'Пользователь не найден') };
+    }
+
+    const contactInfo = await Contact.findOneOrCreate(username);
+    const addedContact = contactInfo.addContact(contactName);
+    if (!addedContact) {
+        return { error: new ErrorInfo(400, 'Такой контакт уже существует') };
+    }
+    await contactInfo.save();
+
+    return { error: null, addedContact };
+}
+
+module.exports.tryAddContact = tryAddContact;

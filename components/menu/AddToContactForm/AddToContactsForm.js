@@ -1,6 +1,8 @@
-import axios from 'axios';
 import React from 'react';
 import io from 'socket.io-client';
+
+import { createContact } from '../../../lib/apiRequests/contacts';
+import { createPrivateConversation } from '../../../lib/apiRequests/conversations';
 
 import './styles.css';
 
@@ -9,7 +11,7 @@ export default class AddToContactsForm extends React.Component {
         super(props);
         this.state = {
             inputValue: '',
-            placeholder: 'Add user to contacts',
+            placeholder: 'Добавить новый контакт',
             disabled: false
         };
 
@@ -31,77 +33,53 @@ export default class AddToContactsForm extends React.Component {
         const contactName = this.state.inputValue;
         this.setState({
             disabled: true,
-            placeholder: 'Wait please',
+            placeholder: 'Запрос обрабатывается',
             inputValue: ''
         });
 
         const [contactRes, conversationRes] = await Promise.all([
-            this.getCreateContactPromise(contactName),
-            this.getCreateConversationPromise(contactName)
+            createContact(contactName),
+            createPrivateConversation(this.props.currentUser, contactName)
         ]);
 
-        if (contactRes.status === 201) {
+        if (!contactRes.data.error) {
             this.handleGoodResponse(contactRes);
         } else {
-            this.handleBadResponse();
+            this.handleBadResponse(contactRes.data.error);
         }
 
-        if (conversationRes.status === 201) {
+        if (!conversationRes.data.error) {
             this.socket.emit('newConversation', conversationRes.data);
         }
-    }
-
-    getCreateContactPromise(contactName) {
-        return axios.post(`api/contacts/${contactName}`, {},
-            {
-                withCredentials: true,
-                responseType: 'json',
-                validateStatus: () => true
-            });
-    }
-
-    getCreateConversationPromise(contactName) {
-        return axios.post('api/conversations/privateDialogue',
-            {
-                users: [this.props.currentUser, contactName],
-                isPrivate: true
-            },
-            {
-                withCredentials: true,
-                responseType: 'json',
-                validateStatus: () => true
-            });
     }
 
     handleGoodResponse(contactRes) {
         this.setState({
             inputValue: '',
-            placeholder: 'Add user to contacts',
+            placeholder: 'Добавить новый контакт',
             disabled: false
         });
 
         this.props.handleNewContact(contactRes.data);
     }
 
-    handleBadResponse() {
+    handleBadResponse(error) {
         this.setState({
             inputValue: '',
-            placeholder: 'User not found :(',
+            placeholder: error.message,
             disabled: false
         });
     }
 
     render() {
         return (
-            <div>
-                <form className='add-contact-form' onSubmit={this.handleSubmit}>
-                    <input className='add-contact-input' type='text'
-                        placeholder={this.state.placeholder}
-                        value={this.state.inputValue}
-                        onChange={this.handleChange}
-                        disabled={this.state.disabled}/>
-                </form>
-            </div>
+            <form className='add-contact-form' onSubmit={this.handleSubmit}>
+                <input className='add-contact-form__input' type='text'
+                    placeholder={this.state.placeholder}
+                    value={this.state.inputValue}
+                    onChange={this.handleChange}
+                    disabled={this.state.disabled}/>
+            </form>
         );
     }
 }

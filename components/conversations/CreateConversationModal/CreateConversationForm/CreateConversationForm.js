@@ -1,6 +1,11 @@
 import React from 'react';
-import axios from 'axios';
 import io from 'socket.io-client';
+
+import { createNotPrivateConversation } from '../../../../lib/apiRequests/conversations';
+
+import './styles.css';
+
+import LoadingSpinner from '../../../LoadingSpinner';
 
 export default class CreateConversationForm extends React.Component {
     constructor(props) {
@@ -9,7 +14,7 @@ export default class CreateConversationForm extends React.Component {
             handleCloseModal: props.handleCloseModal,
             inputValue: '',
             disabled: false,
-            placeholder: 'Conversation name'
+            placeholder: 'Название беседы'
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -31,15 +36,10 @@ export default class CreateConversationForm extends React.Component {
         this.setState({
             disabled: true,
             inputValue: '',
-            placeholder: 'Wait please'
+            placeholder: 'Запрос обрабатывается'
         });
 
-        const res = await axios.post(`api/conversations/${conversationName}`,
-            { users: [this.props.currentUser], isPrivate: false },
-            {
-                withCredentials: true,
-                responseType: 'json'
-            });
+        const res = await createNotPrivateConversation(conversationName, [this.props.currentUser]);
 
         this.socket.emit('newConversation', res.data);
 
@@ -48,16 +48,21 @@ export default class CreateConversationForm extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
-                <header>Create conversation</header>
-                <input
-                    type='text'
-                    placeholder={this.state.placeholder}
-                    value={this.state.inputValue}
-                    onChange={this.handleChange}
-                    disabled={this.state.disabled}
-                />
-            </form>
+            <div className='create-conversation'>
+                {this.state.disabled ? <LoadingSpinner /> : null}
+                <form onSubmit={this.handleSubmit}>
+                    <header className='create-conversation__header'>Создать беседу</header>
+                    <input
+                        type='text'
+                        className='create-conversation__input'
+                        placeholder={this.state.placeholder}
+                        value={this.state.inputValue}
+                        onChange={this.handleChange}
+                        disabled={this.state.disabled}
+                        autoFocus
+                    />
+                </form>
+            </div>
         );
     }
 }

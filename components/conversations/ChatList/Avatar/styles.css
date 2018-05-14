@@ -1,0 +1,20 @@
+.rce-avatar-container
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.rce-avatar-container .rce-avatar
+{
+    height: auto !important;
+    width: 100% !important;
+    border-radius: unset !important;
+    overflow: unset !important;
+}
+
+.rce-avatar-container.circle
+{
+    border-radius: 100%;
+}

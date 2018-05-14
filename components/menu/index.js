@@ -1,10 +1,10 @@
-/* eslint-disable */
 import React from 'react';
 
 import TimeWatch from './TimeWatch/TimeWatch.js';
 import AddToContactsForm from './AddToContactForm/AddToContactsForm.js';
 import ProfileModal from '../ProfileModal/ProfileModal.js';
 import Contacts from './Contacts/Contacts.js';
+import AlarmClockModal from './AlarmClockModal/AlarmClockModal';
 
 import './styles.css';
 
@@ -15,22 +15,32 @@ export default class Menu extends React.Component {
         this.state = {
             avatarUrl: props.menu.avatar,
             name: props.menu.name,
-            contactList: props.contacts.map(elem => JSON.parse(elem)),
+            contactList: props.contacts,
             link: props.menu.link,
             registered: props.menu.registered
         };
 
-        this.handleOpenModal = this.handleOpenModal.bind(this);
-        this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handleOpenProfileModal = this.handleOpenProfileModal.bind(this);
+        this.handleCloseProfileModal = this.handleCloseProfileModal.bind(this);
         this.handleNewContact = this.handleNewContact.bind(this);
+        this.handleOpenAlarmClockModal = this.handleOpenAlarmClockModal.bind(this);
+        this.handleCloseAlarmClockModal = this.handleCloseAlarmClockModal.bind(this);
     }
 
-    handleOpenModal() {
-        this.setState({ showModal: true });
+    handleOpenProfileModal() {
+        this.setState({ showProfileModal: true });
     }
 
-    handleCloseModal() {
-        this.setState({ showModal: false });
+    handleCloseProfileModal() {
+        this.setState({ showProfileModal: false });
+    }
+
+    handleOpenAlarmClockModal() {
+        this.setState({ showAlarmClockModal: true });
+    }
+
+    handleCloseAlarmClockModal() {
+        this.setState({ showAlarmClockModal: false });
     }
 
     handleNewContact(contact) {
@@ -47,23 +57,30 @@ export default class Menu extends React.Component {
         return (
             <div className='menu'>
                 <ProfileModal
-                    showModal={this.state.showModal}
+                    showModal={this.state.showProfileModal}
                     username={this.state.name}
-                    handleCloseModal={this.handleCloseModal}
+                    handleCloseModal={this.handleCloseProfileModal}
                     avatarUrl={this.state.avatarUrl}
                 />
 
-                <div className='back'>
+                <AlarmClockModal
+                    showModal={this.state.showAlarmClockModal}
+                    handleCloseModal={this.handleCloseAlarmClockModal}
+                />
+
+                <div className='menu__avatar-wrapper'>
                     <img
+                        className='menu__avatar-img'
                         src={this.state.avatarUrl}
-                        onClick={this.handleOpenModal}
+                        onClick={this.handleOpenProfileModal}
                         draggable='false'
                     />
                 </div>
 
-                <div className='name'>{this.state.name}</div>
-
-                <TimeWatch/>
+                <div className='menu__name-and-time'>
+                    {this.state.name}
+                    <TimeWatch/>
+                </div>
 
                 <Contacts
                     contactList={this.state.contactList}
@@ -73,6 +90,14 @@ export default class Menu extends React.Component {
                     handleNewContact={this.handleNewContact}
                     currentUser={this.state.name}
                 />
+
+                <button
+                    className="menu__alarm-clock-button"
+                    type="button"
+                    onClick={this.handleOpenAlarmClockModal}
+                >
+                    Будильник!
+                </button>
             </div>
         );
     }

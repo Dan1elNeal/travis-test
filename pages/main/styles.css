@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body
+{
+    margin: 0;
+    padding: 0;
+    background-color: #eee;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+.content-wrapper
+{
+    display: grid;
+
+    grid-template-areas: 'menu menu'
+        'conversations chat';
+
+    grid-template-columns: minmax(240px, 20vw) minmax(400px, 40vw);
+    grid-template-rows: 65px minmax(400px, calc(100vh - 68px));
+
+    box-shadow: 0 2px 5px #757575;
+    background: #fff;
+
+}
+
+img
+{
+    cursor: pointer;
+}
+
+@media screen and (max-width: 900px)
+{
+    .content-wrapper
+    {
+        grid-template-columns: minmax(240px, 40vw) minmax(400px, 60vw);
+    }
+}

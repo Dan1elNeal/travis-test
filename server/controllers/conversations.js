@@ -1,6 +1,6 @@
-const uuid = require('uuid/v4');
-
-const db = require('../libs/dbHelper');
+const ErrorInfo = require('../models/errorInfo');
+const Conversation = require('../models/schemas/conversation');
+const User = require('../models/schemas/user');
 
 module.exports.conversations = async (req, res) => {
     const conversations = await getAllConversations(req.user.username);
@@ -8,109 +8,119 @@ module.exports.conversations = async (req, res) => {
 };
 
 module.exports.getInfo = async (req, res) => {
-    const conversation = await db.get(`conversations_${req.params.conversationId}`);
+    const conversation = await Conversation.findById(req.params.conversationId);
     res.json(conversation);
 };
 
 module.exports.create = async (req, res) => {
     const conversation = {
-        id: uuid(),
         title: req.params.title,
         users: req.body.users,
         isPrivate: req.body.isPrivate
     };
 
-    if (! await areUsersExist(conversation.users)) {
-        return res.status(400).send('Incorrect users');
+    const creationResult = await tryCreateConversation(conversation);
+    if (creationResult.error) {
+        return res.status(creationResult.error.status).json({ error: creationResult.error });
     }
 
-    if (conversation.isPrivate && await isSuchPrivateAlreadyExist(conversation)) {
-        return res.status(400).send('Such private conversation already exist');
+    res.status(201).json(creationResult.conversation);
+};
+
+module.exports.tryCreateConversation = tryCreateConversation;
+
+async function tryCreateConversation(conversation) {
+    const users = await Promise.all(
+        conversation.users.map(username => User.ensureExists(username)));
+    if (users.some(user => user === null)) {
+        return {
+            conversation: null,
+            error: new ErrorInfo(400, 'Пользователь не существует')
+        };
+    }
+    if (conversation.isPrivate) {
+        const existingChat = await getPrivateChat(conversation.users);
+        if (existingChat) {
+            return {
+                conversation: existingChat,
+                error: new ErrorInfo(400, 'Такой диалог уже существует')
+            };
+        }
     }
 
     try {
-        await Promise.all([
-            db.post(`conversations_${conversation.id}`, JSON.stringify(conversation)),
-            addConversationToUsers(conversation)
-        ]);
+        conversation = await Conversation.create(conversation);
     } catch (ex) {
-        console.error(`Can't create conversation. Exception: ${ex}`);
-
-        return res.sendStatus(500);
+        return {
+            conversation: null,
+            error: new ErrorInfo(500, 'Не удалось создать беседу')
+        };
     }
 
-    res.status(201).send(conversation);
-};
+    return { error: null, conversation };
+}
 
 module.exports.addUser = async (req, res) => {
     const conversationId = req.params.conversationId;
     const { username } = req.body;
+    const additionResult = await tryAddUserToConversation(username, conversationId);
+    if (additionResult.error) {
+        return res.status(additionResult.error.status).json({ error: additionResult.error });
+    }
+    res.status(201).json(additionResult.conversation);
+};
 
-    try {
-        await db.get(`users_${username}`);
-    } catch (ex) {
-        return res.status(404).send(`User ${username} not found`);
+module.exports.tryAddUserToConversation = tryAddUserToConversation;
+
+async function tryAddUserToConversation(username, conversationId) {
+    const user = await User.ensureExists(username);
+    if (!user) {
+        return {
+            error: new ErrorInfo(404, `Пользователь ${username} не найден`)
+        };
     }
 
-    const conversation = await db.get(`conversations_${conversationId}`);
+    const conversation = await Conversation.findOne({ _id: conversationId });
+
+    if (!conversation) {
+        return {
+            error: new ErrorInfo(404, `Диалог ${conversationId} не найден`)
+        };
+    }
+
+    if (conversation.isPrivate) {
+        return {
+            error: new ErrorInfo(400, 'Невозможно добавить пользователя в приватный чат')
+        };
+    }
+
     if (conversation.users.includes(username)) {
-        return res.status(400).send(`User ${username} already in conversation`);
+        return {
+            conversation,
+            error: new ErrorInfo(400, `Пользователь ${username} уже существует в беседе`)
+        };
     }
 
     conversation.users.push(username);
     try {
-        await Promise.all([
-            db.put(`conversations_${conversationId}`, JSON.stringify(conversation)),
-            db.post(`conversations_${username}`, conversation.id)
-        ]);
+        await conversation.save();
     } catch (ex) {
-        console.error(`Can't update conversation. Exception: ${ex}`);
-
-        return res.sendStatus(500);
+        return {
+            error: new Error(500, 'Не удалось обновить список пользователей в беседе')
+        };
     }
 
-    res.status(201).send(conversation);
-};
+    return { error: null, conversation, addedUser: username };
+}
 
 async function getAllConversations(username) {
-    const conversationsIds = await db.getAll(`conversations_${username}`);
-
-    const queries = [];
-    conversationsIds.forEach(id => queries.push(db.get(`conversations_${id}`)));
-
-    const conversations = Promise.all(queries);
+    const conversations = await Conversation.find({ users: username });
 
     return conversations;
 }
 
-async function isSuchPrivateAlreadyExist(conversation) {
-    const conversations = await getAllConversations(conversation.users[0]);
-
-    return conversations.some(elem =>
-        (elem.isPrivate &&
-            elem.users.find(user => user === conversation.users[0]) &&
-            elem.users.find(user => user === conversation.users[1]))
-    );
+async function getPrivateChat(users) {
+    return await Conversation.findOne({ isPrivate: true })
+        .where('users').all(users);
 }
 
-async function areUsersExist(users) {
-    const queries = [];
-    users.forEach(user => queries.push(db.get(`users_${user}`)));
-
-    try {
-        await Promise.all(queries);
-    } catch (ex) {
-        return false;
-    }
-
-    return true;
-}
-
-async function addConversationToUsers(conversation) {
-    const queries = [];
-    conversation.users.forEach(user =>
-        queries.push(db.post(`conversations_${user}`, conversation.id))
-    );
-
-    await Promise.all(queries);
-}

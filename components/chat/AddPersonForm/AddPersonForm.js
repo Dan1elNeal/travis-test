@@ -1,6 +1,7 @@
-import axios from 'axios';
 import React from 'react';
 import io from 'socket.io-client';
+
+import { addUserToConversation } from '../../../lib/apiRequests/conversations';
 
 import './styles.css';
 
@@ -9,7 +10,7 @@ export default class AddPersonForm extends React.Component {
         super(props);
         this.state = {
             inputValue: '',
-            placeholder: 'Add user to conversation',
+            placeholder: 'Добавить пользователя в беседу',
             disabled: false
         };
         this.handleChange = this.handleChange.bind(this);
@@ -27,22 +28,16 @@ export default class AddPersonForm extends React.Component {
         const userToAdd = this.state.inputValue;
         this.setState({
             disabled: true,
-            placeholder: 'Wait please',
+            placeholder: 'Запрос обрабатывается',
             inputValue: ''
         });
 
-        const res = await axios.patch(`api/conversations/${this.props.conversationId}`,
-            { username: userToAdd },
-            {
-                withCredentials: true,
-                responseType: 'json',
-                validateStatus: () => true
-            });
+        const res = await addUserToConversation(this.props.conversationId, userToAdd);
 
-        if (res.status === 201) {
+        if (!res.data.error) {
             this.handleGoodResponse(res, userToAdd);
         } else {
-            this.handleBadResponse(res);
+            this.handleBadResponse(res.data.error);
         }
     }
 
@@ -51,32 +46,31 @@ export default class AddPersonForm extends React.Component {
             addedUser: userToAdd,
             conversation: res.data
         });
+
         this.setState({
             inputValue: '',
-            placeholder: 'Add user to conversation',
+            placeholder: 'Добавить пользователя в беседу',
             disabled: false
         });
     }
 
-    handleBadResponse() {
+    handleBadResponse(error) {
         this.setState({
             inputValue: '',
-            placeholder: 'User not found',
+            placeholder: error.message,
             disabled: false
         });
     }
 
     render() {
         return (
-            <div>
-                <form className='add-person-form' onSubmit={this.handleSubmit}>
-                    <input className='add-person-input' type='text'
-                        placeholder={this.state.placeholder}
-                        value={this.state.inputValue}
-                        onChange={this.handleChange}
-                        disabled={this.state.disabled}/>
-                </form>
-            </div>
+            <form className='add-to-chat-form' onSubmit={this.handleSubmit}>
+                <input className='add-to-chat-form__input' type='text'
+                    placeholder={this.state.placeholder}
+                    value={this.state.inputValue}
+                    onChange={this.handleChange}
+                    disabled={this.state.disabled}/>
+            </form>
         );
     }
 }

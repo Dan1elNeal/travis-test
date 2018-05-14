@@ -1,8 +1,8 @@
-/* eslint-disable max-len */
 import React from 'react';
 import moment from 'moment';
 const ReactMarkdown = require('react-markdown');
 import Lightbox from 'react-image-lightbox';
+import ImageMessage from './imageMessage/imageMessage';
 
 import './styles.css';
 
@@ -14,36 +14,38 @@ export default class Message extends React.Component {
             text: props.text,
             author: props.title,
             date: props.date,
+            type: props.type,
+            image: props.image,
             avatar: props.avatar,
             metadata: props.metadata,
             isAvatarOpen: false,
             onMessageTitleClick: props.onMessageTitleClick,
             saveElementForScroll: props.saveElementForScroll,
-            curTime: null
+            curTime: props.date && !isNaN(props.date) && (
+                moment(props.date).fromNow()
+            )
         };
     }
     componentDidMount() {
         setInterval(() => {
             this.setState({
                 curTime: this.state.date && !isNaN(this.state.date) && (
-                    this.state.dateString ||
                     moment(this.state.date).fromNow()
                 )
             });
-        }, 1000);
+        }, 60000);
     }
 
 
     render() {
-
         return <div>
             <li
                 className = {this.state.position} >
                 <div
-                    className = "avatar" > <img
+                    className = 'avatar' > <img
                         onClick={() => this.setState({ isAvatarOpen: true })}
                         src = {this.state.avatar}
-                        draggable = "false"/>
+                        draggable = 'false'/>
                     {this.state.isAvatarOpen && (
                         <Lightbox
                             mainSrc={this.state.avatar}
@@ -51,8 +53,15 @@ export default class Message extends React.Component {
                             imageCaption = {this.state.author}
                         />
                     )}</div>
-                <div className="msg">
+                <div className='msg'>
                     <a onClick={this.props.onTitleClick}>{this.state.author}</a>
+                    {this.state.type === 'image'
+                        ? (<ImageMessage
+                            image={this.state.image}
+                            author={this.state.author}
+                        />)
+                        : null
+                    }
                     <ReactMarkdown renderers={{
                         linkReference: (reference) => {
                             if (!reference.href) {
